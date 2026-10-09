@@ -1,0 +1,4 @@
+interface:
+  display_name: "Elham AutoML"
+  short_description: "Manage data, train models, and predict with Elham"
+  default_prompt: "Use $elham to help me work with my datasets and models."
