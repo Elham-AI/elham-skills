@@ -1,0 +1,10 @@
+{
+  "name": "elham-skills",
+  "plugins": [
+    {
+      "name": "elham",
+      "source": { "source": "local", "path": "./" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" }
+    }
+  ]
+}

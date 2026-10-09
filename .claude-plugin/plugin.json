@@ -1,0 +1,9 @@
+{
+  "name": "elham",
+  "version": "1.1.0",
+  "description": "Work with Elham datasets, training, predictions, monitoring, and accounts.",
+  "author": { "name": "Elham AI" },
+  "homepage": "https://app.elham.ai",
+  "repository": "https://github.com/Elham-AI/elham-skills",
+  "skills": "./skills/"
+}

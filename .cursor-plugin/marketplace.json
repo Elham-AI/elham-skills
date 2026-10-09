@@ -1,0 +1,11 @@
+{
+  "name": "elham-skills",
+  "owner": { "name": "Elham AI" },
+  "plugins": [
+    {
+      "name": "elham",
+      "source": "./",
+      "description": "Elham AutoML skills for datasets, models, predictions, and account workflows."
+    }
+  ]
+}

@@ -12,11 +12,73 @@ Give your skill-capable assistant this repository URL and ask it to install the
 https://github.com/Elham-AI/elham-skills
 ```
 
-For assistants supported by the [Skills CLI](https://skills.sh/docs):
+Choose your assistant below. All three use the same skill and Python helper; you
+only need one installation method per assistant.
+
+| Assistant | Install | Start using it |
+| --- | --- | --- |
+| OpenAI Codex | Add this repository as a plugin marketplace, then install `elham` | Ask “Use Elham to list my datasets” |
+| Claude Code | Add this repository as a plugin marketplace, then install `elham` | Type `/elham:elham` or ask to use Elham |
+| Cursor | Customize → From GitHub Repository → paste this repository URL → install `elham` | Ask “Use Elham to list my datasets” |
+
+**OpenAI Codex** — run in a terminal:
+
+```sh
+codex plugin marketplace add https://github.com/Elham-AI/elham-skills
+codex plugin add elham@elham-skills
+```
+
+Start a new session after installation. For managed ChatGPT workspaces, an admin can
+import this repository as a GitHub marketplace and make the plugin available to
+members. Availability depends on workspace settings and script/network permissions.
+See [OpenAI's plugin packaging guide](https://developers.openai.com/plugins/build/plugins)
+and [workspace marketplace management](https://learn.chatgpt.com/docs/enterprise/plugin-management).
+
+**Claude Code** — paste these commands into Claude Code:
+
+```text
+/plugin marketplace add https://github.com/Elham-AI/elham-skills
+/plugin install elham@elham-skills
+```
+
+Or run `claude plugin marketplace add https://github.com/Elham-AI/elham-skills` and
+`claude plugin install elham@elham-skills` in a terminal. Start a new session and use
+`/elham:elham`. See [Claude's marketplace documentation](https://code.claude.com/docs/en/plugin-marketplaces).
+
+**Cursor** — open **Customize**, choose **From GitHub Repository**, paste
+`https://github.com/Elham-AI/elham-skills`, and install the **elham** plugin from the
+imported marketplace. This repository includes Cursor's marketplace manifest;
+import it as a plugin rather than a remote rule. See
+[Cursor's skill installation instructions](https://cursor.com/docs/skills).
+
+**Claude web / desktop skill upload** — download
+[elham.zip](https://github.com/Elham-AI/elham-skills/raw/refs/heads/main/downloads/elham.zip),
+then open **Customize → Skills → + → Create skill → Upload a skill** and enable it.
+This is the skill-only ZIP, not GitHub's whole-repository ZIP. Code execution must be
+enabled. See [Claude's custom skill instructions](https://support.claude.com/en/articles/12512180-use-skills-in-claude).
+The upload makes the workflow available; live account operations also need outbound
+HTTPS and a securely supplied `ELHAM_ACCESS_TOKEN` in the execution environment.
+If that environment cannot accept a secret securely, use Claude Code with terminal
+sign-in. Never upload a token or password inside the skill ZIP or paste it into chat.
+
+**Alternative for all three** — use the [Skills CLI](https://skills.sh/docs) and select
+your installed assistant(s):
 
 ```sh
 npx skills add Elham-AI/elham-skills --skill elham
 ```
+
+**Manual installation** — copy the entire `skills/elham` folder, including its scripts
+and references, into one of these user-level locations:
+
+| Assistant | Destination |
+| --- | --- |
+| OpenAI Codex | `~/.agents/skills/elham/` |
+| Claude Code | `~/.claude/skills/elham/` |
+| Cursor | `~/.cursor/skills/elham/` |
+
+`~` means your user home directory. Start a new assistant session afterward. A copied
+`SKILL.md` alone is insufficient because execution needs the bundled helper.
 
 Installation support varies by assistant. This skill needs Python 3.10+ and permission
 to run scripts and reach Elham over HTTPS. It uses only Python's standard library.
@@ -85,7 +147,12 @@ token; it does not revoke server sessions or unset environment credentials.
 
 ```sh
 python -m unittest discover -s tests -v
+python scripts/package_skill.py
 ```
+
+The ZIP builder includes only the reviewed skill files. Rebuild the archive after
+changing any skill resource; tests reject an archive whose contents differ from the
+source. Native manifests for all three assistants reference the same `skills/` tree.
 
 Tests use a simulated HTTP transport and require no credentials or credit spending.
 To check availability against production without signing in, run `tools` and
