@@ -195,7 +195,7 @@ class Client:
 
     def initialize(self):
         result = self.rpc("initialize", {"protocolVersion": PROTOCOL, "capabilities": {},
-                           "clientInfo": {"name": "elham-skills", "version": "1.2.0"}})
+                           "clientInfo": {"name": "elham-skills", "version": "1.2.1"}})
         if result.get("protocolVersion") not in {"2025-03-26", "2025-06-18", "2025-11-25"}:
             raise ClientError("Unsupported negotiated protocol version.")
         self.protocol = result["protocolVersion"]

@@ -147,13 +147,10 @@ The helper never automatically retries calls, because a lost response can repres
 a completed operation or credit charge. `logout` removes only the locally saved
 token; it does not revoke server sessions or delete explicitly supplied credential files.
 
-## Public marketplace submissions
+## Downloads and support
 
-Provider manifests, listing metadata, and the website logo are included. This does
-not mean a provider has approved or listed the plugin. See the
-[submission guide](SUBMISSION.md) for portal steps and reviewer scenarios.
 Download the [complete plugin ZIP](https://github.com/Elham-AI/elham-skills/releases/latest/download/elham-plugin.zip)
-for plugin submission; use the separate skill-only ZIP for personal skill uploads.
+or the [skill-only ZIP](https://github.com/Elham-AI/elham-skills/releases/latest/download/elham.zip).
 
 Publisher contact: **faris@elham.ai**. [Support](https://elham.ai/contact),
 [privacy policy](https://elham.ai/Elham-Privacy-Policy.html), and
