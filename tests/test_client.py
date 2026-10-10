@@ -99,10 +99,28 @@ class ClientTests(unittest.TestCase):
             with self.assertRaises(client.ClientError):
                 connection.rpc("tools/list")
 
-    def test_credentials_are_mutually_exclusive(self):
-        with patch.dict(os.environ, {"ELHAM_ACCESS_TOKEN": "token", "ELHAM_API_KEY": "key"}):
+    def test_ambient_credentials_are_ignored(self):
+        with tempfile.TemporaryDirectory() as folder, \
+             patch.object(client, "SESSION", Path(folder) / "missing.json"), \
+             patch.dict(os.environ, {"ELHAM_ACCESS_TOKEN": "token", "ELHAM_API_KEY": "key"}):
+            self.assertEqual(client.load_auth(), {})
+
+    def test_explicit_credential_file_is_endpoint_bound_and_unambiguous(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "credential.json"
+            client.write_private(path, {"endpoint": client.ENDPOINT, "token": "example"})
+            self.assertEqual(client.load_auth(path), {"Authorization": "Bearer example"})
+            for value in ({"endpoint": "https://other.invalid", "token": "example"},
+                          {"endpoint": client.ENDPOINT, "token": "one", "api_key": "two"},
+                          {"endpoint": client.ENDPOINT, "token": "bad\nheader"}):
+                path.write_text(json.dumps(value))
+                with self.assertRaises(client.ClientError):
+                    client.load_auth(path)
+
+    def test_missing_explicit_file_never_falls_back_to_session(self):
+        with tempfile.TemporaryDirectory() as folder:
             with self.assertRaises(client.ClientError):
-                client.load_auth()
+                client.load_auth(Path(folder) / "missing.json")
 
     def test_prediction_key_cannot_manage_account(self):
         with patch.object(client, "load_auth", return_value={"X-API-KEY": "example"}), \

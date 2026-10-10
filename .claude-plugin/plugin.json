@@ -1,9 +1,21 @@
 {
   "name": "elham",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Work with Elham datasets, training, predictions, monitoring, and accounts.",
-  "author": { "name": "Elham AI" },
-  "homepage": "https://app.elham.ai",
+  "author": {
+    "name": "Elham AI",
+    "email": "faris@elham.ai",
+    "url": "https://elham.ai"
+  },
+  "homepage": "https://elham.ai",
   "repository": "https://github.com/Elham-AI/elham-skills",
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "license": "MIT",
+  "keywords": [
+    "elham",
+    "automl",
+    "machine-learning",
+    "tabular-data",
+    "predictions"
+  ]
 }

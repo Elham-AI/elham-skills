@@ -56,7 +56,8 @@ class SkillPackageTests(unittest.TestCase):
             expected = {"elham/" + relative for relative in packager.FILES}
             self.assertEqual(set(archive.namelist()), expected)
             for relative in packager.FILES:
-                content = (ROOT / "skills/elham" / relative).read_text(encoding="utf-8").encode("utf-8")
+                source = ROOT / "skills/elham" / relative
+                content = source.read_bytes() if source.suffix == ".png" else source.read_text(encoding="utf-8").encode("utf-8")
                 self.assertEqual(archive.read("elham/" + relative), content, relative)
             with tempfile.TemporaryDirectory() as folder:
                 archive.extractall(folder)
@@ -71,9 +72,22 @@ class SkillPackageTests(unittest.TestCase):
         spec.loader.exec_module(packager)
         with tempfile.TemporaryDirectory() as folder:
             first, second = Path(folder) / "first.zip", Path(folder) / "second.zip"
-            packager.build(first)
-            packager.build(second)
-            self.assertEqual(first.read_bytes(), second.read_bytes())
+            for plugin in (False, True):
+                packager.build(first, plugin=plugin)
+                packager.build(second, plugin=plugin)
+                self.assertEqual(first.read_bytes(), second.read_bytes())
+
+    def test_submission_metadata_and_complete_archive(self):
+        result = subprocess.run([sys.executable, str(ROOT / "scripts/validate_submission.py")],
+                                capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        with zipfile.ZipFile(ROOT / "downloads/elham-plugin.zip") as archive:
+            with tempfile.TemporaryDirectory() as folder:
+                archive.extractall(folder)
+                result = subprocess.run([sys.executable, str(Path(folder) / "elham/skills/elham/scripts/elham.py"), "--help"],
+                                        capture_output=True, text=True, timeout=15)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn("--credential-file", result.stdout)
 
 
 if __name__ == "__main__":

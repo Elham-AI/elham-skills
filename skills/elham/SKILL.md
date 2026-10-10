@@ -21,8 +21,10 @@ access to `app.elham.ai`; installation alone does not grant those permissions.
    interactive terminal. It prompts for email/password with the password hidden and
    stores only the short-lived access token in a private user directory. Never ask
    for a password in chat or pass it as a command-line argument. If an interactive
-   terminal is unavailable, use the host's secret mechanism to provide
-   `ELHAM_ACCESS_TOKEN`. Do not invent a browser OAuth flow: this helper does not
+   terminal is unavailable, use a private credential file explicitly provisioned by
+   the user through the host's secret mechanism, then pass `--credential-file <path>`
+   before the subcommand. Do not read tokens from environment variables, browser
+   profiles, other apps' credentials, or chat. Do not invent a browser OAuth flow: this helper does not
    implement SSO. SSO-only users need a valid access token supplied securely.
 3. Discover tools with `python <skill>/scripts/elham.py tools`. Read a tool's exact
    live input schema with `python <skill>/scripts/elham.py describe <tool>`.
@@ -30,13 +32,16 @@ access to `app.elham.ai`; installation alone does not grant those permissions.
    An omitted file supplies `{}`. `--args-file -` reads JSON from stdin. Use a file
    or stdin instead of shell-embedded JSON, especially for user data or secrets.
 
-`ELHAM_API_KEY` supports only `predict` and `get_model_schema`. It cannot manage the
+An explicitly supplied API key supports only `predict` and `get_model_schema`. It cannot manage the
 account or call `estimate_cost`. Use a full session for the cost-first prediction
-workflow. If both environment credentials are present, the helper stops rather than
-silently choosing one. Environment credentials take precedence over a saved session.
+workflow. A credential file must include `endpoint` set to
+`https://app.elham.ai/api/elham-mcp/mcp` and exactly one of `token` or `api_key`.
+It must have user-only access (0600 on Unix; a private user ACL on Windows).
+An explicit file takes precedence over the helper's saved session. Never open or
+print the private file just to check authentication; use the helper's `status` command.
 Expired/revoked sessions require sign-in again; passwords and refresh tokens are not
 stored. `logout` removes the local token only; it does not revoke other sessions or
-clear credentials supplied by the host environment.
+delete explicitly supplied credential files.
 
 ## Choose a workflow
 

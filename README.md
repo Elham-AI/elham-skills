@@ -1,5 +1,7 @@
 # Elham Skills
 
+![Elham logo](skills/elham/assets/logo.png)
+
 Use [Elham](https://app.elham.ai) from an AI assistant: upload data, train models,
 make predictions, monitor results, and manage your account using natural language.
 
@@ -52,21 +54,14 @@ import it as a plugin rather than a remote rule. See
 [Cursor's skill installation instructions](https://cursor.com/docs/skills).
 
 **Claude web / desktop skill upload** — download
-[elham.zip](https://github.com/Elham-AI/elham-skills/raw/refs/heads/main/downloads/elham.zip),
+[elham.zip](https://github.com/Elham-AI/elham-skills/releases/latest/download/elham.zip),
 then open **Customize → Skills → + → Create skill → Upload a skill** and enable it.
 This is the skill-only ZIP, not GitHub's whole-repository ZIP. Code execution must be
 enabled. See [Claude's custom skill instructions](https://support.claude.com/en/articles/12512180-use-skills-in-claude).
 The upload makes the workflow available; live account operations also need outbound
-HTTPS and a securely supplied `ELHAM_ACCESS_TOKEN` in the execution environment.
+HTTPS and an explicitly supplied private credential file in the execution environment.
 If that environment cannot accept a secret securely, use Claude Code with terminal
 sign-in. Never upload a token or password inside the skill ZIP or paste it into chat.
-
-**Alternative for all three** — use the [Skills CLI](https://skills.sh/docs) and select
-your installed assistant(s):
-
-```sh
-npx skills add Elham-AI/elham-skills --skill elham
-```
 
 **Manual installation** — copy the entire `skills/elham` folder, including its scripts
 and references, into one of these user-level locations:
@@ -91,8 +86,9 @@ The assistant will guide you to a hidden-password sign-in prompt in your termina
 An Elham account is required. Never paste your password in chat. The helper saves a
 short-lived access token in your private `~/.elham-skills/session.json`, not your
 password. Sign in again when it expires. For hosted/noninteractive assistants, supply
-`ELHAM_ACCESS_TOKEN` using the host's secret settings. SSO-only accounts need that
-securely supplied token; browser SSO is not implemented in this helper.
+a private credential file using a supported secure provisioning mechanism. SSO-only
+accounts need a securely supplied access token; browser SSO is not implemented in
+this helper. Hosted installation alone does not provide account sign-in.
 
 ## What you can ask
 
@@ -111,7 +107,7 @@ bundled HTTP client. The MCP service still needs to be available; the skill remo
 client configuration, not the hosted service dependency. Live tool discovery preserves
 the server's current capabilities and permissions without copying backend logic.
 
-Prediction API keys (`ELHAM_API_KEY`) authorize only predictions and their input
+Prediction API keys authorize only predictions and their input
 schema. Account management and cost estimation need a full signed-in session. The
 skill estimates costs before asking to spend credits; installing it does not grant
 permission to delete data, change teams, send invitations, or spend money.
@@ -131,6 +127,14 @@ python skills/elham/scripts/elham.py call get_model --args-file arguments.json
 python skills/elham/scripts/elham.py logout
 ```
 
+For explicitly provisioned credentials, put `--credential-file /private/path/session.json`
+before the subcommand. The JSON file must contain `endpoint` set to
+`https://app.elham.ai/api/elham-mcp/mcp` and exactly one of `token` or `api_key`.
+Provision it privately with user-only Windows permissions or Unix mode `0600`;
+never commit it, include it in a ZIP, or paste its contents into chat.
+Version 1.2 no longer reads ambient `ELHAM_ACCESS_TOKEN` or `ELHAM_API_KEY`
+environment variables. Existing terminal sign-in sessions continue to work.
+
 `arguments.json` contains a JSON object such as `{"model_id":"YOUR_MODEL_ID"}`.
 Use `--args-file -` for stdin. Secret fields and URLs are redacted from normal output;
 `--private-output NEW_FILE` saves the raw result to a user-only file for uploads or
@@ -141,18 +145,34 @@ operation. Treat local files as sensitive even with these access restrictions.
 HTTP success alone is insufficient: tool errors also produce a nonzero exit code.
 The helper never automatically retries calls, because a lost response can represent
 a completed operation or credit charge. `logout` removes only the locally saved
-token; it does not revoke server sessions or unset environment credentials.
+token; it does not revoke server sessions or delete explicitly supplied credential files.
+
+## Public marketplace submissions
+
+Provider manifests, listing metadata, and the website logo are included. This does
+not mean a provider has approved or listed the plugin. See the
+[submission guide](SUBMISSION.md) for portal steps and reviewer scenarios.
+Download the [complete plugin ZIP](https://github.com/Elham-AI/elham-skills/releases/latest/download/elham-plugin.zip)
+for plugin submission; use the separate skill-only ZIP for personal skill uploads.
+
+Publisher contact: **faris@elham.ai**. [Support](https://elham.ai/contact),
+[privacy policy](https://elham.ai/Elham-Privacy-Policy.html), and
+[terms](https://elham.ai/Elham-terms-and-condition.html).
+See [SECURITY.md](SECURITY.md) for credentials, network destinations, and data handling.
+Code and documentation are [MIT licensed](LICENSE); [brand use](BRANDING.md) is separate.
 
 ## Development
 
 ```sh
-python -m unittest discover -s tests -v
 python scripts/package_skill.py
+python scripts/validate_submission.py
+python -m unittest discover -s tests -v
 ```
 
-The ZIP builder includes only the reviewed skill files. Rebuild the archive after
-changing any skill resource; tests reject an archive whose contents differ from the
-source. Native manifests for all three assistants reference the same `skills/` tree.
+The ZIP builder includes only reviewed files. Rebuild after changing a packaged
+resource; tests reject archives whose contents differ from source. Generated ZIPs
+are release assets and CI artifacts, not tracked plugin contents. Native manifests
+for all three assistants reference the same `skills/` tree.
 
 Tests use a simulated HTTP transport and require no credentials or credit spending.
 To check availability against production without signing in, run `tools` and

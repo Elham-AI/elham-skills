@@ -64,21 +64,29 @@ def write_private(path, value):
         raise
 
 
-def load_auth():
-    token, key = os.getenv("ELHAM_ACCESS_TOKEN"), os.getenv("ELHAM_API_KEY")
-    if token and key:
-        raise ClientError("Set only one of ELHAM_ACCESS_TOKEN and ELHAM_API_KEY.")
+def load_auth(credential_file=None):
+    # Never collect ambient environment credentials. A user signs in with this
+    # helper or explicitly selects a private file provisioned for this service.
+    path = Path(credential_file) if credential_file else SESSION
+    if not path.exists():
+        if credential_file:
+            raise ClientError("The selected private credential file does not exist.")
+        return {}
+    if path.is_symlink() or path.parent.is_symlink():
+        raise ClientError("Refusing symlinked credential storage.")
+    if os.name != "nt" and stat.S_IMODE(path.stat().st_mode) & 0o077:
+        raise ClientError("Credential file must have user-only permissions (0600).")
+    saved = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(saved, dict) or saved.get("endpoint") != ENDPOINT:
+        raise ClientError("Credential file must specify the official Elham endpoint.")
+    token, key = saved.get("token"), saved.get("api_key")
+    if bool(token) == bool(key):
+        raise ClientError("Credential file must contain exactly one token or api_key.")
+    value = token or key
+    if not isinstance(value, str) or not value.strip() or "\r" in value or "\n" in value:
+        raise ClientError("Invalid credential value.")
     if key:
         return {"X-API-KEY": key}
-    if not token and SESSION.exists():
-        if SESSION.is_symlink() or SESSION.parent.is_symlink():
-            raise ClientError("Refusing symlinked session storage.")
-        if os.name != "nt" and stat.S_IMODE(SESSION.stat().st_mode) & 0o077:
-            raise ClientError("Session file is not private; remove it and sign in again.")
-        saved = json.loads(SESSION.read_text(encoding="utf-8"))
-        if saved.get("endpoint") != ENDPOINT:
-            raise ClientError("Stored session belongs to a different endpoint.")
-        token = saved.get("token")
     return {"Authorization": f"Bearer {token}"} if token else {}
 
 
@@ -187,7 +195,7 @@ class Client:
 
     def initialize(self):
         result = self.rpc("initialize", {"protocolVersion": PROTOCOL, "capabilities": {},
-                           "clientInfo": {"name": "elham-skills", "version": "1.0.0"}})
+                           "clientInfo": {"name": "elham-skills", "version": "1.2.0"}})
         if result.get("protocolVersion") not in {"2025-03-26", "2025-06-18", "2025-11-25"}:
             raise ClientError("Unsupported negotiated protocol version.")
         self.protocol = result["protocolVersion"]
@@ -235,6 +243,7 @@ def upload(ticket_path, file_path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--credential-file", help="Explicit private Elham credential file; never a token value")
     sub = parser.add_subparsers(dest="command", required=True)
     for name in ("status", "login", "logout", "tools"):
         sub.add_parser(name)
@@ -249,12 +258,12 @@ def main():
     args = parser.parse_args()
     if args.command == "logout":
         SESSION.unlink(missing_ok=True)
-        print("Local session removed. Environment credentials and server sessions are unchanged.")
+        print("Local session removed. Explicit credential files and server sessions are unchanged.")
         return 0
     if args.command == "upload":
         print(json.dumps(upload(args.ticket, args.file)))
         return 0
-    auth = {} if args.command == "login" else load_auth()
+    auth = {} if args.command == "login" else load_auth(args.credential_file)
     if args.command == "status":
         print(json.dumps({"credential_available": bool(auth), "validated_online": False,
                           "kind": "api_key" if "X-API-KEY" in auth else "session" if auth else None}))
@@ -262,7 +271,7 @@ def main():
     if args.command == "call" and args.tool == "authenticate":
         raise ClientError("Use interactive login; do not place passwords in tool arguments.")
     if args.command == "call" and not auth:
-        raise ClientError("Sign in with login or provide a credential via the host secret mechanism.")
+        raise ClientError("Sign in with login or select a private file with --credential-file.")
     if args.command == "call" and "X-API-KEY" in auth and args.tool not in {"predict", "get_model_schema"}:
         raise ClientError("This operation requires a full account session, not a prediction API key.")
     if args.command == "call" and args.private_output and Path(args.private_output).exists():

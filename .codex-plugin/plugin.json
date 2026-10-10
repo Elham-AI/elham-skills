@@ -1,14 +1,48 @@
 {
   "name": "elham",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Work with Elham datasets, training, predictions, monitoring, and accounts.",
-  "author": { "name": "Elham AI" },
-  "homepage": "https://app.elham.ai",
+  "author": {
+    "name": "Elham AI",
+    "email": "faris@elham.ai",
+    "url": "https://elham.ai"
+  },
+  "homepage": "https://elham.ai",
   "repository": "https://github.com/Elham-AI/elham-skills",
   "skills": "./skills/",
   "interface": {
     "displayName": "Elham AutoML",
-    "shortDescription": "Manage data, train models, and predict with Elham",
-    "defaultPrompt": ["Use Elham to help me sign in and list my datasets."]
+    "shortDescription": "Train models from your data",
+    "longDescription": "Use Elham AutoML to upload and inspect tabular datasets, estimate training costs, train and manage models, make predictions, and monitor results. Manage credits, teams, API keys, and data connections when authorized. Designed for analysts and teams who want to work with Elham through their assistant. Requires an Elham account, Python 3.10 or later, and permission to run scripts and connect to Elham. Training and prediction consume Elham credits; the skill estimates costs before asking to spend them. The bundled client calls Elham's hosted MCP service without requiring an MCP connector configuration. Sign-in uses a private terminal prompt or an explicitly supplied private credential file. Browser OAuth is not included. Hosted assistants need a secure credential provisioning mechanism.",
+    "developerName": "Elham AI",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://elham.ai",
+    "supportURL": "https://elham.ai/contact",
+    "privacyPolicyURL": "https://elham.ai/Elham-Privacy-Policy.html",
+    "termsOfServiceURL": "https://elham.ai/Elham-terms-and-condition.html",
+    "logo": "./skills/elham/assets/logo.png",
+    "composerIcon": "./skills/elham/assets/logo.png",
+    "defaultPrompt": [
+      "Inspect the quality of my Elham dataset.",
+      "Estimate the credits needed to train a model on my dataset.",
+      "Show the monitoring summary for my Elham model."
+    ]
+  },
+  "license": "MIT",
+  "keywords": [
+    "elham",
+    "automl",
+    "machine-learning",
+    "tabular-data",
+    "predictions"
+  ],
+  "extensions": {
+    "com.openai": {
+      "onboardingSkill": "./skills/elham/SKILL.md"
+    }
   }
 }
