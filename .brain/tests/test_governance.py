@@ -4,6 +4,11 @@ SPEC=importlib.util.spec_from_file_location('brain_governance',Path(__file__).re
 g=importlib.util.module_from_spec(SPEC);SPEC.loader.exec_module(g)
 
 class GovernanceTests(unittest.TestCase):
+    def test_description_limits_match_portable_skill_format(self):
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaises(ValueError):g.create_skill(Path(d),'too-long','x'*1025,'Workflow')
+            self.assertFalse((Path(d)/'too-long').exists())
+            with self.assertRaises(ValueError):g.create_skill(Path(d),'bad-markup','Use <thing> here','Workflow')
     def test_malformed_yaml_is_rejected(self):
         with tempfile.TemporaryDirectory() as d:
             p=Path(d)/'a-skill';p.mkdir();(p/'SKILL.md').write_text('---\nname: a-skill\ndescription: [unterminated\n---\nBody\n')

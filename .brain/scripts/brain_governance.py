@@ -29,6 +29,10 @@ def validate_skill(root):
         if not isinstance(metadata,dict):return ['Frontmatter must be a YAML mapping']
         if not isinstance(metadata.get('description'),str) or not metadata['description'].strip():issues.append('Description must be a nonempty YAML string')
         if not isinstance(metadata.get('name'),str):issues.append('Name must be a YAML string')
+        unexpected=set(metadata)-{'name','description','license','allowed-tools','metadata'}
+        if unexpected:issues.append('Unsupported frontmatter fields: '+', '.join(sorted(unexpected)))
+        description_value=metadata.get('description','')
+        if isinstance(description_value,str) and (len(description_value)>1024 or '<' in description_value or '>' in description_value):issues.append('Description must be at most 1024 characters and contain no angle brackets')
     except ImportError:return ['Install PyYAML for full frontmatter validation: python -m pip install PyYAML']
     except yaml.YAMLError:return ['Invalid YAML frontmatter']
     name=re.search(r'(?m)^name:[ \t]*[\"\']?([^\r\n\"\']+)',front)
@@ -51,6 +55,7 @@ def validate_skill(root):
 def create_skill(parent,name,description,body):
     if not valid_skill_name(name):raise ValueError('Invalid skill name')
     if not description.strip() or not body.strip():raise ValueError('Description and workflow are required')
+    if len(description)>1024 or '<' in description or '>' in description:raise ValueError('Description must be at most 1024 characters and contain no angle brackets')
     root=Path(parent)/name
     root.mkdir(parents=True,exist_ok=False)
     (root/'scripts').mkdir()
