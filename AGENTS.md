@@ -1,0 +1,14 @@
+<!-- knowledge-brain:start -->
+## Brain and skill workflow
+
+These are the current knowledge-management rules; they replace older vault destinations and capture procedures in this file.
+- At every new session, resumed session, and project switch, read `~/Documents/Codex/Vaults/Developer/Knowledge MOC.md`, search relevant Developer notes, and read the matching notes before planning or implementation. The project brain is `~/Documents/Codex/Vaults/Elham`; read `Elham MOC.md` and relevant context/skills.
+- Use a skill-first approach: inspect available skill descriptions, read the relevant `SKILL.md`, then run its documented checks/scripts when applicable. Do not load every unrelated skill. The brain is required working context; verify claims against current source and record uncertainty.
+- Read `~/Documents/Codex/Vaults/Developer/.agents/skills/maintain-knowledge-brain/SKILL.md`. During work and before completion, update useful general knowledge in Developer and changed architecture, decisions, commands, risks and evidence in the project brain. Update existing notes first. If nothing durable changed, say so; never invent a lesson.
+- Every new or maintained first-party skill must include a real runnable `scripts/validate_skill.py`. Create skills with `create-scripted-skill`; validate format, name, references and helper behavior before completion. Script presence alone does not prove operational correctness. Bundled/synced third-party skills remain provider-managed; author a local extension when needed.
+- Skill folder and frontmatter name: lowercase kebab-case, at most 64 characters. Notes: flat Title Case filenames, preserve acronyms/product casing, lowercase interior minor words; use `check-knowledge-names` before renaming or publishing. Preserve required `SKILL.md`, `AGENTS.md`, `README.md` names. Update links atomically; never rewrite code examples as links.
+- Keep general notes project-agnostic. Keep project/private evidence in its owning brain. Use domain tags ending in `#generated_by_ai`, register notes in an MOC, and use explicit cross-vault links. Never access the retired personal vault. Never persist credentials, customer data, or private environment files.
+- Record evidence source, review date and verification status; distinguish tested behavior, source observations, historical claims and hypotheses. Supersede stale decisions explicitly. Refresh after meaningful changes and at handoff. Missing access or failed checks mean pending work, not successful capture.
+- Before reporting done, run affected tests and brain link/naming/skill checks; report knowledge changes and unsaved items. Commit only intended changes, preserve others' work, and push only within current authorization. Avoid deployment branches for documentation-only publication when they trigger deployment.
+<!-- knowledge-brain:end -->
+

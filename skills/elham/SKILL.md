@@ -1,6 +1,6 @@
 ---
 name: elham
-description: Use Elham AutoML to upload and inspect tabular datasets, train and manage models, make predictions, monitor performance, check credits, and manage teams and data connections. Use when the user wants to work with their Elham account or asks to use Elham for machine learning.
+description: "Use Elham AutoML to upload and inspect tabular datasets, train and manage models, make predictions, monitor performance, check credits, and manage teams and data connections. Use when the user wants to work with their Elham account or asks to use Elham for machine learning."
 ---
 
 # Elham
@@ -82,3 +82,9 @@ and required fields. Do not assume a tool absent from the live server is deploye
 Finish with returned resource IDs, status, credit information and the next useful
 step. A submitted training/import job is not a completed model/dataset. Poll at a
 reasonable interval with a bounded wait, then return its pending status if needed.
+
+<!-- scripted-skill-validation:start -->
+## Scripted Validation
+
+Run `python -X utf8 scripts/validate_skill.py` from this skill directory before publishing changes. It checks required frontmatter, the skill's kebab-case name, runnable scripts, unfinished scaffold placeholders and Python syntax without executing operational helpers. Also test any changed operational helper with representative inputs; a format check cannot certify the workflow. Follow the active brain routing rules for knowledge capture.
+<!-- scripted-skill-validation:end -->
